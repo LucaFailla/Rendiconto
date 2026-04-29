@@ -441,7 +441,25 @@ function exportExcel() {
 
 // Service worker
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const newSW = reg.installing;
+      newSW.addEventListener('statechange', () => {
+        if (newSW.state === 'activated') {
+          window.location.reload();
+        }
+      });
+    });
+  }).catch(() => {});
+
+  // Controlla aggiornamenti ogni volta che l'app torna in primo piano
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      navigator.serviceWorker.getRegistration('./sw.js').then(reg => {
+        if (reg) reg.update();
+      });
+    }
+  });
 }
 
 render();
