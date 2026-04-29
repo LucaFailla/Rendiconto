@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rendiconto">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Rendiconto</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f1a;
+    --bg2: #1a1a2e;
+    --bg3: #16213e;
+    --card: #1e1e35;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0ede8;
+    --muted: rgba(240,237,232,0.45);
+    --accent: #e8c547;
+    --green: #4ecb8d;
+    --red: #e85454;
+    --blue: #5b9bd5;
+    --viaggio: #e8c547;
+    --supporto: #4ecb8d;
+    --radius: 16px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow: hidden; }
+  
+  /* Layout */
+  .app { display: flex; flex-direction: column; height: 100dvh; }
+  .header { background: var(--bg2); padding: 14px 20px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .header-title { font-family: 'DM Serif Display', serif; font-size: 22px; letter-spacing: -0.3px; color: var(--text); }
+  .header-title span { color: var(--accent); }
+  .btn-add-top { background: var(--accent); color: #0f0f1a; border: none; border-radius: 50px; padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .btn-add-top svg { width: 14px; height: 14px; }
+
+  /* Budget cards */
+  .budget-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .bcard { background: var(--card); border-radius: 12px; padding: 10px 12px; border: 1px solid var(--border); }
+  .bcard-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .bcard-value { font-size: 17px; font-weight: 500; }
+  .bcard-sub { font-size: 10px; margin-top: 2px; }
+  .bcard.viaggio .bcard-value { color: var(--viaggio); }
+  .bcard.supporto .bcard-value { color: var(--supporto); }
+  .bcard.totale .bcard-value { color: var(--text); }
+  .ok { color: var(--green); }
+  .over { color: var(--red); }
+
+  /* Content area */
+  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(16px + var(--safe-bottom)); }
+
+  /* Summary row */
+  .summary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .scard { background: var(--card); border-radius: var(--radius); padding: 14px 16px; border: 1px solid var(--border); }
+  .scard-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .scard-main { font-size: 22px; font-weight: 500; }
+  .scard-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .scard.viaggio .scard-main { color: var(--viaggio); }
+  .scard.supporto .scard-main { color: var(--supporto); }
+
+  /* Progress bar */
+  .progress-wrap { background: var(--card); border-radius: var(--radius); padding: 14px 16px; border: 1px solid var(--border); margin-bottom: 16px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .progress-track { height: 6px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
+  .progress-fill { height: 100%; border-radius: 99px; transition: width 0.4s ease; }
+  .progress-fill.viaggio { background: var(--viaggio); }
+  .progress-fill.supporto { background: var(--supporto); }
+
+  /* Section */
+  .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; padding-left: 2px; }
+
+  /* Expense list */
+  .expense-list { display: flex; flex-direction: column; gap: 8px; }
+  .expense-item { background: var(--card); border-radius: 12px; padding: 12px 14px; border: 1px solid var(--border); display: flex; align-items: center; gap: 12px; position: relative; overflow: hidden; }
+  .expense-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+  .expense-item.viaggio::before { background: var(--viaggio); }
+  .expense-item.alloggio::before { background: var(--blue); }
+  .expense-item.altro::before { background: var(--supporto); }
+  .exp-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .exp-icon.viaggio { background: rgba(232,197,71,0.12); }
+  .exp-icon.alloggio { background: rgba(91,155,213,0.12); }
+  .exp-icon.altro { background: rgba(78,203,141,0.12); }
+  .exp-info { flex: 1; min-width: 0; }
+  .exp-desc { font-size: 14px; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+  .exp-type { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .exp-amount { font-size: 15px; font-weight: 500; flex-shrink: 0; }
+  .exp-amount.viaggio { color: var(--viaggio); }
+  .exp-amount.alloggio { color: var(--blue); }
+  .exp-amount.altro { color: var(--supporto); }
+  .btn-del { background: none; border: none; padding: 4px 6px; cursor: pointer; color: var(--muted); font-size: 16px; flex-shrink: 0; border-radius: 6px; }
+  .btn-del:active { background: rgba(232,84,84,0.15); color: var(--red); }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
+  .empty-state .emoji { font-size: 36px; margin-bottom: 10px; }
+
+  /* Modal overlay */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: var(--bg3); border-radius: 24px 24px 0 0; padding: 20px 20px calc(20px + var(--safe-bottom)); width: 100%; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); border-top: 1px solid var(--border); }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 99px; margin: 0 auto 20px; }
+  .modal-title { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 20px; }
+
+  /* Form */
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .field input, .field select { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px; font-family: 'DM Sans', sans-serif; font-size: 16px; color: var(--text); outline: none; -webkit-appearance: none; }
+  .field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ffffff60' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+  .field input:focus, .field select:focus { border-color: rgba(232,197,71,0.4); }
+  .field input::placeholder { color: var(--muted); }
+  .btn-submit { width: 100%; background: var(--accent); color: #0f0f1a; border: none; border-radius: 14px; padding: 16px; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 500; cursor: pointer; margin-top: 6px; }
+  .btn-submit:active { opacity: 0.85; }
+
+  /* Budget modal */
+  .budget-modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+
+  /* Scrollbar */
+  .content::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="header-title">Rendi<span>conto</span></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-add-top" onclick="openBudgetModal()" style="background:var(--card);color:var(--text);border:1px solid var(--border)">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v6M5.5 7.5h5"/></svg>
+          Budget
+        </button>
+        <button class="btn-add-top" onclick="openAddModal()">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M2 8h12"/></svg>
+          Aggiungi
+        </button>
+      </div>
+    </div>
+    <div class="budget-strip">
+      <div class="bcard viaggio">
+        <div class="bcard-label">Viaggio</div>
+        <div class="bcard-value" id="hd-viaggio">€0</div>
+        <div class="bcard-sub" id="hd-viaggio-res"></div>
+      </div>
+      <div class="bcard supporto">
+        <div class="bcard-label">Supporto</div>
+        <div class="bcard-value" id="hd-supporto">€0</div>
+        <div class="bcard-sub" id="hd-supporto-res"></div>
+      </div>
+      <div class="bcard totale">
+        <div class="bcard-label">Totale</div>
+        <div class="bcard-value" id="hd-totale">€0</div>
+        <div class="bcard-sub" id="hd-budget-tot" style="color:var(--muted)"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="summary-row">
+      <div class="scard viaggio">
+        <div class="scard-label">Tot. Viaggio</div>
+        <div class="scard-main" id="tot-viaggio">€0,00</div>
+        <div class="scard-sub" id="res-viaggio">Budget: €0</div>
+      </div>
+      <div class="scard supporto">
+        <div class="scard-label">Tot. Vitto/Altro</div>
+        <div class="scard-main" id="tot-vitto">€0,00</div>
+        <div class="scard-sub" id="res-supporto">Budget: €0</div>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Viaggio</span>
+        <span id="prog-viaggio-pct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill viaggio" id="prog-viaggio" style="width:0%"></div></div>
+      <div class="progress-label" style="margin-top:10px">
+        <span>Supporto</span>
+        <span id="prog-supporto-pct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill supporto" id="prog-supporto" style="width:0%"></div></div>
+    </div>
+
+    <div class="section-title">Spese</div>
+    <div class="expense-list" id="expense-list"></div>
+  </div>
+</div>
+
+<!-- Add expense modal -->
+<div class="modal-overlay" id="add-modal" onclick="closeOnOverlay(event,'add-modal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nuova spesa</div>
+    <div class="field">
+      <label>Tipologia</label>
+      <select id="f-tipo">
+        <option value="Viaggio">Viaggio</option>
+        <option value="Alloggio">Alloggio</option>
+        <option value="Vitto">Vitto</option>
+        <option value="Altro">Altro</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Descrizione</label>
+      <input type="text" id="f-desc" placeholder="es. Biglietti aereo">
+    </div>
+    <div class="field">
+      <label>Costo (€)</label>
+      <input type="number" id="f-costo" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+    </div>
+    <button class="btn-submit" onclick="addExpense()">Aggiungi spesa</button>
+  </div>
+</div>
+
+<!-- Budget modal -->
+<div class="modal-overlay" id="budget-modal" onclick="closeOnOverlay(event,'budget-modal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Imposta budget</div>
+    <div class="budget-modal-grid">
+      <div class="field">
+        <label>Budget Viaggio</label>
+        <input type="number" id="b-viaggio" placeholder="395" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label>Budget Supporto</label>
+        <input type="number" id="b-supporto" placeholder="826" inputmode="decimal">
+      </div>
+    </div>
+    <div class="field">
+      <label>Budget Totale</label>
+      <input type="number" id="b-totale" placeholder="1221" inputmode="decimal" readonly style="opacity:0.6">
+    </div>
+    <button class="btn-submit" onclick="saveBudget()">Salva budget</button>
+  </div>
+</div>
+
+<script>
+const TIPO_ICON = { Viaggio: '✈️', Alloggio: '🏨', Vitto: '🍽️', Altro: '📌' };
+const TIPO_CLASS = { Viaggio: 'viaggio', Alloggio: 'alloggio', Vitto: 'altro', Altro: 'altro' };
+
+let state = loadState();
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('rendiconto');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return {
+    budget: { viaggio: 395, supporto: 826 },
+    expenses: [
+      { id: 1, tipo: 'Viaggio', desc: 'Biglietti aereo', costo: 271.59 },
+      { id: 2, tipo: 'Alloggio', desc: '10-16 May Domillion New modern Vilnius old town studio U2302', costo: 447.64 },
+      { id: 3, tipo: 'Viaggio', desc: 'ALIBUS', costo: 8 }
+    ]
+  };
+}
+
+function saveState() {
+  localStorage.setItem('rendiconto', JSON.stringify(state));
+}
+
+function fmt(n) { return '€' + n.toFixed(2).replace('.', ','); }
+
+function calcTotals() {
+  const viaggio = state.expenses.filter(e => e.tipo === 'Viaggio').reduce((s,e) => s + e.costo, 0);
+  const vitto = state.expenses.filter(e => e.tipo !== 'Viaggio').reduce((s,e) => s + e.costo, 0);
+  const totale = viaggio + vitto;
+  const bv = state.budget.viaggio;
+  const bs = state.budget.supporto;
+  const bt = bv + bs;
+  return { viaggio, vitto, totale, bv, bs, bt,
+    resV: bv - viaggio, resS: bs - vitto };
+}
+
+function render() {
+  const t = calcTotals();
+  
+  // Header
+  document.getElementById('hd-viaggio').textContent = fmt(t.viaggio);
+  const rvEl = document.getElementById('hd-viaggio-res');
+  rvEl.textContent = (t.resV >= 0 ? '+' : '') + fmt(t.resV) + ' rimanente';
+  rvEl.className = 'bcard-sub ' + (t.resV >= 0 ? 'ok' : 'over');
+
+  document.getElementById('hd-supporto').textContent = fmt(t.vitto);
+  const rsEl = document.getElementById('hd-supporto-res');
+  rsEl.textContent = (t.resS >= 0 ? '+' : '') + fmt(t.resS) + ' rimanente';
+  rsEl.className = 'bcard-sub ' + (t.resS >= 0 ? 'ok' : 'over');
+
+  document.getElementById('hd-totale').textContent = fmt(t.totale);
+  document.getElementById('hd-budget-tot').textContent = 'di ' + fmt(t.bt);
+
+  // Summary
+  document.getElementById('tot-viaggio').textContent = fmt(t.viaggio);
+  document.getElementById('tot-vitto').textContent = fmt(t.vitto);
+  document.getElementById('res-viaggio').textContent = 'Budget: ' + fmt(t.bv) + ' | Residuo: ' + fmt(t.resV);
+  document.getElementById('res-supporto').textContent = 'Budget: ' + fmt(t.bs) + ' | Residuo: ' + fmt(t.resS);
+
+  // Progress
+  const pv = Math.min(100, (t.viaggio / t.bv * 100) || 0);
+  const ps = Math.min(100, (t.vitto / t.bs * 100) || 0);
+  document.getElementById('prog-viaggio').style.width = pv + '%';
+  document.getElementById('prog-viaggio').style.background = pv >= 100 ? 'var(--red)' : 'var(--viaggio)';
+  document.getElementById('prog-viaggio-pct').textContent = pv.toFixed(0) + '%';
+  document.getElementById('prog-supporto').style.width = ps + '%';
+  document.getElementById('prog-supporto').style.background = ps >= 100 ? 'var(--red)' : 'var(--supporto)';
+  document.getElementById('prog-supporto-pct').textContent = ps.toFixed(0) + '%';
+
+  // List
+  const list = document.getElementById('expense-list');
+  if (state.expenses.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="emoji">💸</div>Nessuna spesa registrata</div>';
+    return;
+  }
+  list.innerHTML = state.expenses.map(e => {
+    const cls = TIPO_CLASS[e.tipo] || 'altro';
+    return `<div class="expense-item ${cls}">
+      <div class="exp-icon ${cls}">${TIPO_ICON[e.tipo] || '📌'}</div>
+      <div class="exp-info">
+        <div class="exp-desc">${e.desc}</div>
+        <div class="exp-type">${e.tipo}</div>
+      </div>
+      <div class="exp-amount ${cls}">${fmt(e.costo)}</div>
+      <button class="btn-del" onclick="deleteExpense(${e.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function addExpense() {
+  const tipo = document.getElementById('f-tipo').value;
+  const desc = document.getElementById('f-desc').value.trim();
+  const costo = parseFloat(document.getElementById('f-costo').value);
+  if (!desc || !costo || costo <= 0) return;
+  state.expenses.unshift({ id: Date.now(), tipo, desc, costo });
+  saveState();
+  render();
+  closeModal('add-modal');
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-costo').value = '';
+}
+
+function deleteExpense(id) {
+  state.expenses = state.expenses.filter(e => e.id !== id);
+  saveState();
+  render();
+}
+
+function openAddModal() {
+  document.getElementById('add-modal').classList.add('open');
+  setTimeout(() => document.getElementById('f-desc').focus(), 350);
+}
+
+function openBudgetModal() {
+  document.getElementById('b-viaggio').value = state.budget.viaggio;
+  document.getElementById('b-supporto').value = state.budget.supporto;
+  document.getElementById('b-totale').value = state.budget.viaggio + state.budget.supporto;
+  document.getElementById('budget-modal').classList.add('open');
+}
+
+function saveBudget() {
+  const bv = parseFloat(document.getElementById('b-viaggio').value) || 0;
+  const bs = parseFloat(document.getElementById('b-supporto').value) || 0;
+  state.budget = { viaggio: bv, supporto: bs };
+  saveState();
+  render();
+  closeModal('budget-modal');
+}
+
+// Auto-update totale in budget modal
+document.addEventListener('DOMContentLoaded', () => {
+  ['b-viaggio','b-supporto'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      const bv = parseFloat(document.getElementById('b-viaggio').value) || 0;
+      const bs = parseFloat(document.getElementById('b-supporto').value) || 0;
+      document.getElementById('b-totale').value = (bv + bs).toFixed(2);
+    });
+  });
+});
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeOnOverlay(e, id) { if (e.target.classList.contains('modal-overlay')) closeModal(id); }
+
+// Service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+render();
+</script>
+</body>
+</html>
