@@ -13,6 +13,7 @@
 
 <title>Vilnius STT</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
   :root {
@@ -94,9 +95,7 @@
 
   .label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; }
   .value { font-size: 1.4rem; font-weight: 700; margin: 5px 0; }
-  
   .diff { font-size: 0.75rem; color: var(--accent); font-weight: 500; transition: color 0.3s ease; }
-  /* Classe per il budget in rosso */
   .diff.negative { color: var(--danger); font-weight: 700; }
   
   .perc-tag {
@@ -110,30 +109,34 @@
     font-weight: 600;
   }
 
-  .btn-group { display: flex; gap: 12px; margin-bottom: 30px; }
+  .btn-group { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px; 
+    margin-bottom: 15px; 
+  }
   
   .btn {
-    flex: 1;
-    padding: 16px;
+    padding: 14px;
     border-radius: 18px;
     border: none;
     font-family: inherit;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
   }
 
-  .btn-primary { background: var(--accent); color: #0b0b14; }
+  .btn-primary { background: var(--accent); color: #0b0b14; grid-column: span 2; padding: 18px; font-size: 1rem; }
   .btn-secondary { background: var(--card-bg); color: white; border: 1px solid var(--border); }
   .btn-danger { background: rgba(255, 107, 107, 0.1); color: var(--danger); border: 1px solid rgba(255, 107, 107, 0.2); margin-top: 10px; }
   .btn:active { transform: scale(0.96); }
 
-  .list-title { font-size: 1rem; font-weight: 600; margin-bottom: 15px; color: var(--text-dim); }
+  .list-title { font-size: 1rem; font-weight: 600; margin: 25px 0 15px 0; color: var(--text-dim); }
   
   .expense-card {
     background: var(--card-bg);
@@ -187,8 +190,9 @@
   </header>
 
   <div class="btn-group">
-    <button class="btn btn-secondary" onclick="openBudgetModal()">Budget</button>
     <button class="btn btn-primary" onclick="openAddModal()">＋ Nuova Spesa</button>
+    <button class="btn btn-secondary" onclick="openBudgetModal()">⚙️ Budget</button>
+    <button class="btn btn-secondary" onclick="downloadExcel()">📊 Esporta</button>
   </div>
 
   <div class="stats-grid">
@@ -196,17 +200,17 @@
       <div class="label">Viaggio</div>
       <div class="value" id="v-val">€0.00</div>
       <div id="v-diff" class="diff">Rest: €0</div>
-      <div id="v-perc" class="perc-tag">0% del budget</div>
+      <div id="v-perc" class="perc-tag">0% budget</div>
     </div>
     <div class="stat-card">
       <div class="label">Supporto</div>
       <div class="value" id="s-val">€0.00</div>
       <div id="s-diff" class="diff">Rest: €0</div>
-      <div id="s-perc" class="perc-tag">0% del budget</div>
+      <div id="s-perc" class="perc-tag">0% budget</div>
     </div>
   </div>
 
-  <div class="list-title">Ultime Spese (clicca per modificare)</div>
+  <div class="list-title">Ultime Spese</div>
   <div id="expense-list"></div>
 </div>
 
@@ -218,9 +222,9 @@
       <option value="Viaggio">✈️ Viaggio</option>
       <option value="Supporto">🏠 Supporto</option>
     </select>
-    <input type="text" id="ex-desc" placeholder="Descrizione (es. Volo Ryan)">
+    <input type="text" id="ex-desc" placeholder="Descrizione (es. Cena)">
     <input type="number" step="0.01" id="ex-costo" placeholder="Importo (€)">
-    <button class="btn btn-primary" style="width:100%" onclick="saveExpense()" id="btn-save">Aggiungi ora</button>
+    <button class="btn btn-primary" style="width:100%" onclick="saveExpense()" id="btn-save">Salva</button>
     <button class="btn btn-danger" id="btn-delete" style="display:none; width:100%" onclick="deleteExpense()">Elimina Spesa</button>
   </div>
 </div>
@@ -232,7 +236,7 @@
     <input type="number" id="b-v">
     <label class="label">Budget Supporto</label>
     <input type="number" id="b-s">
-    <button class="btn btn-primary" style="width:100%" onclick="saveBudget()">Salva Budget</button>
+    <button class="btn btn-primary" style="width:100%" onclick="saveBudget()">Salva</button>
   </div>
 </div>
 
@@ -242,13 +246,12 @@ let state = JSON.parse(localStorage.getItem('vilniusData')) || {
   expenses: []
 };
 
-// --- MODALS LOGIC ---
+// --- MODALS ---
 function closeModal(id) { 
     document.getElementById(id).classList.remove('open');
     document.getElementById('edit-id').value = '';
     document.getElementById('btn-delete').style.display = 'none';
     document.getElementById('modal-title').innerText = 'Nuova Spesa';
-    document.getElementById('btn-save').innerText = 'Aggiungi ora';
 }
 
 function openAddModal() {
@@ -266,43 +269,38 @@ function openBudgetModal() {
 function openEditModal(id) {
     const ex = state.expenses.find(e => e.id === id);
     if(!ex) return;
-
     document.getElementById('edit-id').value = ex.id;
     document.getElementById('ex-tipo').value = ex.tipo;
     document.getElementById('ex-desc').value = ex.desc;
     document.getElementById('ex-costo').value = ex.costo;
-    
     document.getElementById('modal-title').innerText = 'Modifica Spesa';
-    document.getElementById('btn-save').innerText = 'Salva Modifiche';
     document.getElementById('btn-delete').style.display = 'block';
-    
     document.getElementById('add-modal').classList.add('open');
 }
 
-// --- DATA LOGIC ---
+// --- DATA ---
 function saveExpense() {
   const id = document.getElementById('edit-id').value;
   const tipo = document.getElementById('ex-tipo').value;
-  const desc = document.getElementById('ex-desc').value || 'Spesa generica';
+  const desc = document.getElementById('ex-desc').value || 'Spesa';
   const costo = parseFloat(document.getElementById('ex-costo').value) || 0;
-  const dateStr = new Date().toLocaleDateString('it-IT', {day: '2-digit', month: 'short'});
+  const today = new Date().toLocaleDateString('it-IT');
 
   if(costo <= 0) return;
 
   if(id) {
-    const index = state.expenses.findIndex(e => e.id == id);
-    state.expenses[index] = { ...state.expenses[index], tipo, desc, costo };
+    const idx = state.expenses.findIndex(e => e.id == id);
+    state.expenses[idx] = { ...state.expenses[idx], tipo, desc, costo };
   } else {
-    state.expenses.push({ id: Date.now(), tipo, desc, costo, date: dateStr });
+    state.expenses.push({ id: Date.now(), tipo, desc, costo, date: today });
   }
-  
   save();
   closeModal('add-modal');
 }
 
 function deleteExpense() {
     const id = document.getElementById('edit-id').value;
-    if(confirm('Vuoi eliminare questa spesa?')) {
+    if(confirm('Eliminare?')) {
         state.expenses = state.expenses.filter(e => e.id != id);
         save();
         closeModal('add-modal');
@@ -321,35 +319,68 @@ function save() {
   render();
 }
 
+// --- EXCEL EXPORT ---
+function downloadExcel() {
+    if (state.expenses.length === 0) {
+        alert("Non ci sono spese da esportare!");
+        return;
+    }
+
+    // 1. Prepariamo i dati della tabella spese
+    const dataTable = state.expenses.map(e => ({
+        'Data': e.date,
+        'Categoria': e.tipo,
+        'Descrizione': e.desc,
+        'Importo (€)': e.costo.toFixed(2)
+    }));
+
+    // 2. Prepariamo il riepilogo
+    const vTot = state.expenses.filter(e => e.tipo === 'Viaggio').reduce((a,b) => a + b.costo, 0);
+    const sTot = state.expenses.filter(e => e.tipo === 'Supporto').reduce((a,b) => a + b.costo, 0);
+    
+    const summaryTable = [
+        {}, // Riga vuota
+        {'Data': 'RIEPILOGO FINALE'},
+        {'Data': 'Categoria', 'Categoria': 'Budget', 'Descrizione': 'Speso', 'Importo (€)': 'Rimanente'},
+        {'Data': 'Viaggio', 'Categoria': state.budget.viaggio.toFixed(2), 'Descrizione': vTot.toFixed(2), 'Importo (€)': (state.budget.viaggio - vTot).toFixed(2)},
+        {'Data': 'Supporto', 'Categoria': state.budget.supporto.toFixed(2), 'Descrizione': sTot.toFixed(2), 'Importo (€)': (state.budget.supporto - sTot).toFixed(2)},
+        {'Data': 'TOTALE GENERALE', 'Categoria': (state.budget.viaggio + state.budget.supporto).toFixed(2), 'Descrizione': (vTot + sTot).toFixed(2), 'Importo (€)': ((state.budget.viaggio + state.budget.supporto) - (vTot + sTot)).toFixed(2)}
+    ];
+
+    // Uniamo le due parti
+    const fullData = [...dataTable, ...summaryTable];
+
+    // Creazione Workbook
+    const worksheet = XLSX.utils.json_to_sheet(fullData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Rendiconto Vilnius");
+
+    // Download
+    XLSX.writeFile(workbook, `Rendiconto_Missione_Vilnius.xlsx`);
+}
+
 function render() {
   const vTot = state.expenses.filter(e => e.tipo === 'Viaggio').reduce((a,b) => a + b.costo, 0);
   const sTot = state.expenses.filter(e => e.tipo === 'Supporto').reduce((a,b) => a + b.costo, 0);
 
-  // Calcolo differenze per visualizzazione rosso/verde
-  const vDiffVal = state.budget.viaggio - vTot;
-  const sDiffVal = state.budget.supporto - sTot;
+  const vDiff = state.budget.viaggio - vTot;
+  const sDiff = state.budget.supporto - sTot;
 
-  // Render Sezione Viaggio
-  const vDiffEl = document.getElementById('v-diff');
   document.getElementById('v-val').innerText = `€${vTot.toFixed(2)}`;
-  vDiffEl.innerText = `Rest: €${vDiffVal.toFixed(2)}`;
-  vDiffEl.classList.toggle('negative', vDiffVal < 0);
-  
-  const vPerc = state.budget.viaggio > 0 ? Math.round((vTot / state.budget.viaggio) * 100) : 0;
-  document.getElementById('v-perc').innerText = `${vPerc}% del budget`;
+  document.getElementById('v-diff').innerText = `Rest: €${vDiff.toFixed(2)}`;
+  document.getElementById('v-diff').classList.toggle('negative', vDiff < 0);
+  const vP = state.budget.viaggio > 0 ? Math.round((vTot/state.budget.viaggio)*100) : 0;
+  document.getElementById('v-perc').innerText = `${vP}% budget`;
 
-  // Render Sezione Supporto
-  const sDiffEl = document.getElementById('s-diff');
   document.getElementById('s-val').innerText = `€${sTot.toFixed(2)}`;
-  sDiffEl.innerText = `Rest: €${sDiffVal.toFixed(2)}`;
-  sDiffEl.classList.toggle('negative', sDiffVal < 0);
-
-  const sPerc = state.budget.supporto > 0 ? Math.round((sTot / state.budget.supporto) * 100) : 0;
-  document.getElementById('s-perc').innerText = `${sPerc}% del budget`;
+  document.getElementById('s-diff').innerText = `Rest: €${sDiff.toFixed(2)}`;
+  document.getElementById('s-diff').classList.toggle('negative', sDiff < 0);
+  const sP = state.budget.supporto > 0 ? Math.round((sTot/state.budget.supporto)*100) : 0;
+  document.getElementById('s-perc').innerText = `${sP}% budget`;
 
   const list = document.getElementById('expense-list');
   if (state.expenses.length === 0) {
-    list.innerHTML = '<div class="empty-state">Ancora nessuna spesa registrata.</div>';
+    list.innerHTML = '<div class="empty-state">Nessuna spesa.</div>';
     return;
   }
 
@@ -361,7 +392,7 @@ function render() {
           <div class="ex-name">${e.desc}</div>
           <div class="ex-info">
              <span class="ex-cat">${e.tipo}</span>
-             <span class="ex-date">Registrato il: ${e.date || '---'}</span>
+             <span class="ex-date">${e.date}</span>
           </div>
         </div>
         <div class="ex-amount-box">
@@ -370,12 +401,6 @@ function render() {
         </div>
       </div>
     `;
-  });
-}
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
 }
 
