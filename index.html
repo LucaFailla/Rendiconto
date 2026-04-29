@@ -92,9 +92,9 @@
   .exp-desc { font-size: 14px; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
   .exp-type { font-size: 11px; color: var(--muted); margin-top: 2px; }
   .exp-amount { font-size: 15px; font-weight: 500; flex-shrink: 0; }
-  .exp-amount.viaggio { color: var(--viaggio); }
-  .exp-amount.alloggio { color: var(--blue); }
-  .exp-amount.altro { color: var(--supporto); }
+  .exp-amount.positive { color: var(--green); }
+  .exp-amount.negative { color: var(--red); }
+  .exp-amount.zero { color: var(--text); }
   .btn-del { background: none; border: none; padding: 4px 6px; cursor: pointer; color: var(--muted); font-size: 16px; flex-shrink: 0; border-radius: 6px; }
   .btn-del:active { background: rgba(232,84,84,0.15); color: var(--red); }
 
@@ -325,13 +325,14 @@ function render() {
   }
   list.innerHTML = state.expenses.map(e => {
     const cls = TIPO_CLASS[e.tipo] || 'altro';
+    const amtClass = e.costo > 0 ? 'positive' : e.costo < 0 ? 'negative' : 'zero';
     return `<div class="expense-item ${cls}">
       <div class="exp-icon ${cls}">${TIPO_ICON[e.tipo] || '📌'}</div>
       <div class="exp-info">
         <div class="exp-desc">${e.desc}</div>
         <div class="exp-type">${e.tipo}</div>
       </div>
-      <div class="exp-amount ${cls}">${fmt(e.costo)}</div>
+      <div class="exp-amount ${amtClass}">${fmt(e.costo)}</div>
       <button class="btn-del" onclick="deleteExpense(${e.id})">✕</button>
     </div>`;
   }).join('');
