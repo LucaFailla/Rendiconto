@@ -1,4 +1,4 @@
-const CACHE = 'rendiconto-v14'; // Versione incrementata
+const CACHE = 'rendiconto-v15'; // Versione incrementata
 const ASSETS = [
   './',
   './index.html',
