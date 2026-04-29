@@ -94,7 +94,10 @@
 
   .label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; }
   .value { font-size: 1.4rem; font-weight: 700; margin: 5px 0; }
-  .diff { font-size: 0.75rem; color: var(--accent); font-weight: 500; }
+  
+  .diff { font-size: 0.75rem; color: var(--accent); font-weight: 500; transition: color 0.3s ease; }
+  /* Classe per il budget in rosso */
+  .diff.negative { color: var(--danger); font-weight: 700; }
   
   .perc-tag {
     margin-top: 12px;
@@ -242,7 +245,6 @@ let state = JSON.parse(localStorage.getItem('vilniusData')) || {
 // --- MODALS LOGIC ---
 function closeModal(id) { 
     document.getElementById(id).classList.remove('open');
-    // Reset form
     document.getElementById('edit-id').value = '';
     document.getElementById('btn-delete').style.display = 'none';
     document.getElementById('modal-title').innerText = 'Nuova Spesa';
@@ -283,17 +285,15 @@ function saveExpense() {
   const tipo = document.getElementById('ex-tipo').value;
   const desc = document.getElementById('ex-desc').value || 'Spesa generica';
   const costo = parseFloat(document.getElementById('ex-costo').value) || 0;
-  const date = new Date().toLocaleDateString('it-IT', {day: '2-digit', month: 'short'});
+  const dateStr = new Date().toLocaleDateString('it-IT', {day: '2-digit', month: 'short'});
 
   if(costo <= 0) return;
 
   if(id) {
-    // Edit
     const index = state.expenses.findIndex(e => e.id == id);
     state.expenses[index] = { ...state.expenses[index], tipo, desc, costo };
   } else {
-    // Add New
-    state.expenses.push({ id: Date.now(), tipo, desc, costo, date });
+    state.expenses.push({ id: Date.now(), tipo, desc, costo, date: dateStr });
   }
   
   save();
@@ -325,14 +325,25 @@ function render() {
   const vTot = state.expenses.filter(e => e.tipo === 'Viaggio').reduce((a,b) => a + b.costo, 0);
   const sTot = state.expenses.filter(e => e.tipo === 'Supporto').reduce((a,b) => a + b.costo, 0);
 
-  // Update Stats & Percentages vs Budget
+  // Calcolo differenze per visualizzazione rosso/verde
+  const vDiffVal = state.budget.viaggio - vTot;
+  const sDiffVal = state.budget.supporto - sTot;
+
+  // Render Sezione Viaggio
+  const vDiffEl = document.getElementById('v-diff');
   document.getElementById('v-val').innerText = `€${vTot.toFixed(2)}`;
-  document.getElementById('v-diff').innerText = `Rest: €${(state.budget.viaggio - vTot).toFixed(2)}`;
+  vDiffEl.innerText = `Rest: €${vDiffVal.toFixed(2)}`;
+  vDiffEl.classList.toggle('negative', vDiffVal < 0);
+  
   const vPerc = state.budget.viaggio > 0 ? Math.round((vTot / state.budget.viaggio) * 100) : 0;
   document.getElementById('v-perc').innerText = `${vPerc}% del budget`;
 
+  // Render Sezione Supporto
+  const sDiffEl = document.getElementById('s-diff');
   document.getElementById('s-val').innerText = `€${sTot.toFixed(2)}`;
-  document.getElementById('s-diff').innerText = `Rest: €${(state.budget.supporto - sTot).toFixed(2)}`;
+  sDiffEl.innerText = `Rest: €${sDiffVal.toFixed(2)}`;
+  sDiffEl.classList.toggle('negative', sDiffVal < 0);
+
   const sPerc = state.budget.supporto > 0 ? Math.round((sTot / state.budget.supporto) * 100) : 0;
   document.getElementById('s-perc').innerText = `${sPerc}% del budget`;
 
