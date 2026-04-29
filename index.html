@@ -132,6 +132,10 @@
     <div class="header-top">
       <div class="header-title">Rendi<span>conto</span></div>
       <div style="display:flex;gap:8px">
+        <button class="btn-add-top" onclick="exportExcel()" style="background:var(--card);color:var(--text);border:1px solid var(--border)">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3M2 11v1a2 2 0 002 2h8a2 2 0 002-2v-1"/></svg>
+          Excel
+        </button>
         <button class="btn-add-top" onclick="openBudgetModal()" style="background:var(--card);color:var(--text);border:1px solid var(--border)">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v6M5.5 7.5h5"/></svg>
           Budget
@@ -387,6 +391,54 @@ document.addEventListener('DOMContentLoaded', () => {
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function closeOnOverlay(e, id) { if (e.target.classList.contains('modal-overlay')) closeModal(id); }
 
+function exportExcel() {
+  const wb = XLSX.utils.book_new();
+  const wsData = [];
+
+  // Row 1: headers
+  wsData.push([
+    'Tipologia', 'Descrizione', 'Costo',
+    'Tot Viaggio', 'Tot Vitto', 'Viaggio residuo', 'Supporto residuo',
+    '', '', '', '',
+    'Budget viaggio', 'Budget supporto', 'Budget totale'
+  ]);
+
+  // Row 2: first expense + formulas + budget
+  const firstExp = state.expenses[0];
+  wsData.push([
+    firstExp ? firstExp.tipo : '',
+    firstExp ? firstExp.desc : '',
+    firstExp ? firstExp.costo : '',
+    { f: 'SUMIF(A:A,"viaggio",C:C)' },
+    { f: 'SUMIF(A:A,"<>viaggio",C:C)' },
+    { f: `L2 - SUMIF(A:A,"viaggio",C:C)` },
+    { f: `M2 - SUMIF(A:A,"<>viaggio",C:C)` },
+    '', '', '', '',
+    state.budget.viaggio,
+    state.budget.supporto,
+    { f: 'SUM(L2:M2)' }
+  ]);
+
+  // Rows 3+: remaining expenses
+  for (let i = 1; i < state.expenses.length; i++) {
+    const e = state.expenses[i];
+    wsData.push([e.tipo, e.desc, e.costo]);
+  }
+
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // Column widths
+  ws['!cols'] = [
+    { wch: 12 }, { wch: 50 }, { wch: 10 },
+    { wch: 14 }, { wch: 12 }, { wch: 16 }, { wch: 18 },
+    { wch: 2 }, { wch: 2 }, { wch: 2 }, { wch: 2 },
+    { wch: 16 }, { wch: 18 }, { wch: 14 }
+  ];
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Budget');
+  XLSX.writeFile(wb, 'Rendiconto.xlsx');
+}
+
 // Service worker
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
@@ -394,5 +446,6 @@ if ('serviceWorker' in navigator) {
 
 render();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>
