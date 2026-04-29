@@ -63,13 +63,12 @@
   }
   .ex-info h4 { margin: 0; font-size: 0.95rem; font-weight: 600; }
   .ex-info p { margin: 2px 0 0; font-size: 0.75rem; color: var(--muted); }
-  .ex-right { text-align: right; display: flex; align-items: center; gap: 15px; }
-  .ex-cost { font-weight: 700; font-size: 1rem; }
-  .btn-action { background: none; border: none; padding: 5px; cursor: pointer; display: flex; align-items: center; }
-  .btn-edit { color: var(--accent); opacity: 0.7; }
-  .btn-del { color: var(--danger); opacity: 0.7; }
+  .ex-right { text-align: right; display: flex; align-items: center; gap: 10px; }
+  .ex-cost { font-weight: 700; font-size: 1rem; margin-right: 5px; }
+  .btn-action { background: none; border: none; padding: 8px; cursor: pointer; display: flex; align-items: center; border-radius: 50%; }
+  .btn-edit { color: var(--accent); background: rgba(78, 204, 163, 0.1); }
+  .btn-del { color: var(--danger); background: rgba(255, 71, 87, 0.1); }
 
-  /* Modali */
   .modal {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
@@ -91,11 +90,6 @@
   .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
   .btn-confirm { flex: 2; background: var(--accent); color: #0b0b14; border: none; padding: 15px; border-radius: 12px; font-weight: 700; }
   .btn-cancel { flex: 1; background: none; color: var(--muted); border: 1px solid var(--card-border); padding: 15px; border-radius: 12px; }
-
-  @media (max-width: 380px) {
-    h1 { font-size: 2rem; }
-    .bcard-value { font-size: 0.95rem; }
-  }
 </style>
 </head>
 <body>
@@ -111,12 +105,10 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
       XLS
     </button>
-    
     <button class="btn-icon" onclick="openModal('budget-modal')">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
       Budget
     </button>
-
     <button class="btn-icon btn-add" onclick="prepareNewExpense()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg>
       Nuova
@@ -191,8 +183,10 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" async></script>
+
 <script>
+// Recupero Dati (Identico alla versione originale v7 per mantenere compatibilità)
 let state = JSON.parse(localStorage.getItem('tripData')) || {
   budget: { viaggio: 0, supporto: 0 },
   expenses: []
@@ -289,10 +283,10 @@ function render() {
       <div class="ex-right">
         <span class="ex-cost">€${e.costo.toFixed(2)}</span>
         <button class="btn-action btn-edit" onclick="editExpense(${e.id})">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </button>
         <button class="btn-action btn-del" onclick="deleteExpense(${e.id})">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
         </button>
       </div>
     `;
@@ -301,6 +295,10 @@ function render() {
 }
 
 function exportExcel() {
+  if (typeof XLSX === 'undefined') {
+    alert("La libreria Excel si sta ancora caricando. Riprova tra un secondo.");
+    return;
+  }
   const vTot = state.expenses.filter(e => e.tipo === 'Viaggio').reduce((a,b) => a + b.costo, 0);
   const sTot = state.expenses.filter(e => e.tipo !== 'Viaggio').reduce((a,b) => a + b.costo, 0);
   const tTot = vTot + sTot;
@@ -330,11 +328,8 @@ function exportExcel() {
   XLSX.writeFile(wb, `Report_Vilnius_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-
-render();
+// Avvio
+window.onload = render;
 </script>
 
 </body>
