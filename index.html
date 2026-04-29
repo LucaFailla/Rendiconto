@@ -4,286 +4,322 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#1a1a2e">
-<title>Rendicontazione Viaggio</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<title>Vilnius STT</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+
 <style>
   :root {
-    --bg: #0b0b14;
-    --bg-gradient: linear-gradient(145deg, #0b0b14 0%, #1a1a2e 100%);
-    --card: rgba(255, 255, 255, 0.05);
-    --card-border: rgba(255, 255, 255, 0.1);
-    --accent: #4ecca3;
+    --bg: #0f0f1a;
+    --accent: #70e0af;
+    --accent-dark: #4ecca3;
+    --card-bg: rgba(255, 255, 255, 0.06);
+    --border: rgba(255, 255, 255, 0.12);
     --text: #ffffff;
-    --muted: #94a3b8;
-    --danger: #ff4757;
+    --text-dim: #94a3b8;
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { 
-    margin: 0; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); 
-    min-height: 100vh; overflow-x: hidden;
-  }
-
-  .container { max-width: 500px; margin: 0 auto; padding: 20px; padding-top: 60px; }
-  header { margin-bottom: 30px; }
-  h1 { font-family: 'DM Serif Display', serif; font-size: 2.5rem; margin: 0; letter-spacing: -1px; }
-  .subtitle { color: var(--muted); font-size: 0.9rem; margin-top: 5px; text-transform: uppercase; letter-spacing: 2px; }
-
-  .actions-top { display: flex; gap: 10px; margin-bottom: 20px; }
-  .btn-icon {
-    flex: 1; background: var(--card); border: 1px solid var(--card-border); color: white;
-    padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-    gap: 8px; font-weight: 500; font-size: 0.85rem; cursor: pointer; transition: 0.2s;
-  }
-  .btn-icon:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
-  .btn-add { background: var(--accent); color: #0b0b14; border: none; }
-
-  .budget-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 30px; }
-  .bcard { 
-    background: var(--card); border: 1px solid var(--card-border); padding: 15px 10px; 
-    border-radius: 16px; text-align: center; cursor: pointer; transition: 0.2s;
-  }
-  .bcard-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; margin-bottom: 5px; }
-  .bcard-value { font-size: 1.1rem; font-weight: 700; margin-bottom: 2px; }
-  .bcard-sub { font-size: 0.65rem; font-weight: 500; color: var(--accent); }
-  .perc-badge { font-size: 0.6rem; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: var(--muted); display: block; margin-top: 4px;}
-
-  .expense-item {
-    background: var(--card); border: 1px solid var(--card-border); border-radius: 16px;
-    padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
-  }
-  .ex-info h4 { margin: 0; font-size: 0.95rem; font-weight: 600; }
-  .ex-info p { margin: 2px 0 0; font-size: 0.75rem; color: var(--muted); }
-  .ex-right { text-align: right; display: flex; align-items: center; gap: 10px; }
-  .ex-cost-box { display: flex; flex-direction: column; align-items: flex-end; }
-  .ex-cost { font-weight: 700; font-size: 1rem; }
-  .ex-perc { font-size: 0.65rem; color: var(--accent); opacity: 0.8; }
   
-  /* Modale */
+  body { 
+    margin: 0; 
+    font-family: 'Outfit', sans-serif; 
+    background-color: var(--bg); 
+    background-image: radial-gradient(circle at 0% 0%, rgba(112, 224, 175, 0.05) 0%, transparent 50%),
+                      radial-gradient(circle at 100% 100%, rgba(112, 224, 175, 0.05) 0%, transparent 50%);
+    color: var(--text); 
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+
+  .app-container {
+    width: 100%;
+    max-width: 480px;
+    padding: 40px 20px;
+  }
+
+  header {
+    margin-bottom: 35px;
+    text-align: left;
+  }
+
+  .brand {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.8rem;
+    line-height: 1;
+    margin: 0;
+    background: linear-gradient(to bottom right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .tagline {
+    color: var(--accent);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  /* Dashboard Cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 4px;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+
+  .label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; }
+  .value { font-size: 1.4rem; font-weight: 700; margin: 5px 0; }
+  .diff { font-size: 0.75rem; color: var(--accent); font-weight: 500; }
+  .perc-tag {
+    margin-top: 12px;
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 4px 10px;
+    background: rgba(112, 224, 175, 0.1);
+    color: var(--accent);
+    border-radius: 100px;
+    font-weight: 600;
+  }
+
+  /* Actions */
+  .btn-group { display: flex; gap: 12px; margin-bottom: 30px; }
+  
+  .btn {
+    flex: 1;
+    padding: 16px;
+    border-radius: 18px;
+    border: none;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-primary { background: var(--accent); color: #0b0b14; }
+  .btn-secondary { background: var(--card-bg); color: white; border: 1px solid var(--border); }
+  .btn:active { transform: scale(0.96); }
+
+  /* Expense List */
+  .list-title { font-size: 1rem; font-weight: 600; margin-bottom: 15px; color: var(--text-dim); }
+  
+  .expense-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    animation: fadeIn 0.4s ease forwards;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .ex-name { font-weight: 600; font-size: 1rem; margin-bottom: 4px; }
+  .ex-cat { font-size: 0.7rem; color: var(--text-dim); display: flex; align-items: center; gap: 5px; }
+  .ex-cat::before { content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+
+  .ex-amount-box { text-align: right; }
+  .ex-amount { font-weight: 700; font-size: 1.1rem; display: block; }
+  .ex-p { font-size: 0.7rem; color: var(--accent); font-weight: 600; }
+
+  /* Modal */
   .modal {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
-    display: flex; align-items: center; justify-content: center;
-    opacity: 0; pointer-events: none; transition: 0.3s; z-index: 1000;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 2000;
   }
-  .modal.open { opacity: 1; pointer-events: auto; }
+  .modal.open { display: flex; }
   .modal-content {
-    background: #1a1a2e; width: 90%; max-width: 400px; padding: 30px;
-    border-radius: 24px; border: 1px solid var(--card-border);
+    background: #161625; width: 90%; max-width: 400px; padding: 30px; 
+    border-radius: 30px; border: 1px solid var(--border);
   }
+  
   input, select {
-    width: 100%; background: var(--card); border: 1px solid var(--card-border);
-    color: white; padding: 12px; border-radius: 10px; font-size: 1rem; margin-bottom: 15px;
+    width: 100%; padding: 14px; border-radius: 14px; border: 1px solid var(--border);
+    background: #0b0b14; color: white; margin-bottom: 15px; font-family: inherit;
   }
-  .btn-confirm { width: 100%; background: var(--accent); color: #0b0b14; border: none; padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+
+  .empty-state { text-align: center; color: var(--text-dim); margin-top: 40px; font-size: 0.9rem; }
 </style>
 </head>
 <body>
 
-<div class="container">
+<div class="app-container">
   <header>
-    <div class="subtitle">Rendicontazione</div>
-    <h1>Viaggio Vilnius</h1>
+    <div class="tagline">Travel Tracker</div>
+    <h1 class="brand">Vilnius STT</h1>
   </header>
 
-  <div class="actions-top">
-    <button class="btn-icon" onclick="exportExcel()">XLS</button>
-    <button class="btn-icon" onclick="openModal('budget-modal')">Budget</button>
-    <button class="btn-icon btn-add" onclick="prepareNewExpense()">+ Spesa</button>
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="openModal('budget-modal')">Budget</button>
+    <button class="btn btn-primary" onclick="openModal('add-modal')">＋ Nuova Spesa</button>
   </div>
 
-  <div class="budget-strip">
-    <div class="bcard">
-      <div class="bcard-label">Viaggio</div>
-      <div class="bcard-value" id="hd-v-val">€0</div>
-      <div id="hd-v-res" class="bcard-sub"></div>
-      <span id="perc-v" class="perc-badge">0% del totale</span>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="label">Viaggio</div>
+      <div class="value" id="v-val">€0.00</div>
+      <div id="v-diff" class="diff">Rest: €0</div>
+      <div id="v-perc" class="perc-tag">0% del totale</div>
     </div>
-    <div class="bcard">
-      <div class="bcard-label">Supporto</div>
-      <div class="bcard-value" id="hd-s-val">€0</div>
-      <div id="hd-s-res" class="bcard-sub"></div>
-      <span id="perc-s" class="perc-badge">0% del totale</span>
-    </div>
-    <div class="bcard">
-      <div class="bcard-label">Totale</div>
-      <div class="bcard-value" id="hd-t-val">€0</div>
-      <div id="hd-t-max" class="bcard-sub" style="color:var(--muted)"></div>
+    <div class="stat-card">
+      <div class="label">Supporto</div>
+      <div class="value" id="s-val">€0.00</div>
+      <div id="s-diff" class="diff">Rest: €0</div>
+      <div id="s-perc" class="perc-tag">0% del totale</div>
     </div>
   </div>
 
+  <div class="list-title">Ultime Spese</div>
   <div id="expense-list"></div>
 </div>
 
-<div id="add-modal" class="modal" onclick="closeOnOverlay(event, 'add-modal')">
+<div id="add-modal" class="modal" onclick="if(event.target==this) closeModal('add-modal')">
   <div class="modal-content">
-    <h2 id="modal-title">Nuova Spesa</h2>
-    <label>Categoria</label>
+    <h2 style="margin-top:0">Nuova Spesa</h2>
     <select id="ex-tipo">
-      <option value="Viaggio">Viaggio (Volo, Trasporti)</option>
-      <option value="Supporto">Supporto (Vitto, Alloggio, Altro)</option>
+      <option value="Viaggio">✈️ Viaggio</option>
+      <option value="Supporto">🏠 Supporto</option>
     </select>
-    <label>Descrizione</label>
-    <input type="text" id="ex-desc" placeholder="es. Cena tipica">
-    <label>Importo (€)</label>
-    <input type="number" id="ex-costo" step="0.01" placeholder="0.00">
-    <button class="btn-confirm" onclick="addExpense()">Salva</button>
+    <input type="text" id="ex-desc" placeholder="Descrizione (es. Volo Ryan)">
+    <input type="number" id="ex-costo" placeholder="Importo (€)">
+    <button class="btn btn-primary" style="width:100%" onclick="addExpense()">Aggiungi ora</button>
   </div>
 </div>
 
-<div id="budget-modal" class="modal" onclick="closeOnOverlay(event, 'budget-modal')">
+<div id="budget-modal" class="modal" onclick="if(event.target==this) closeModal('budget-modal')">
   <div class="modal-content">
-    <h2>Budget</h2>
-    <label>Budget Viaggio (€)</label>
-    <input type="number" id="b-v" step="0.01">
-    <label>Budget Supporto (€)</label>
-    <input type="number" id="b-s" step="0.01">
-    <button class="btn-confirm" onclick="saveBudget()">Aggiorna</button>
+    <h2 style="margin-top:0">Imposta Budget</h2>
+    <label class="label">Budget Viaggio</label>
+    <input type="number" id="b-v">
+    <label class="label">Budget Supporto</label>
+    <input type="number" id="b-s">
+    <button class="btn btn-primary" style="width:100%" onclick="saveBudget()">Salva Budget</button>
   </div>
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" async></script>
 
 <script>
-let state = JSON.parse(localStorage.getItem('tripData')) || {
+let state = JSON.parse(localStorage.getItem('vilniusData')) || {
   budget: { viaggio: 0, supporto: 0 },
   expenses: []
 };
-let editingId = null;
 
-function save() {
-  localStorage.setItem('tripData', JSON.stringify(state));
-  render();
+function openModal(id) { 
+    document.getElementById(id).classList.add('open');
+    if(id === 'budget-modal') {
+        document.getElementById('b-v').value = state.budget.viaggio;
+        document.getElementById('b-s').value = state.budget.supporto;
+    }
 }
-
-function prepareNewExpense() {
-  editingId = null;
-  document.getElementById('modal-title').innerText = 'Nuova Spesa';
-  document.getElementById('ex-desc').value = '';
-  document.getElementById('ex-costo').value = '';
-  openModal('add-modal');
-}
-
-function editExpense(id) {
-  const exp = state.expenses.find(e => e.id === id);
-  if (!exp) return;
-  editingId = id;
-  document.getElementById('modal-title').innerText = 'Modifica Spesa';
-  document.getElementById('ex-tipo').value = exp.tipo;
-  document.getElementById('ex-desc').value = exp.desc;
-  document.getElementById('ex-costo').value = exp.costo;
-  openModal('add-modal');
-}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 function addExpense() {
   const tipo = document.getElementById('ex-tipo').value;
-  const desc = document.getElementById('ex-desc').value;
+  const desc = document.getElementById('ex-desc').value || 'Spesa generica';
   const costo = parseFloat(document.getElementById('ex-costo').value) || 0;
-  if (editingId) {
-    state.expenses = state.expenses.map(e => e.id === editingId ? {...e, tipo, desc, costo} : e);
-  } else {
+  
+  if(costo > 0) {
     state.expenses.push({ id: Date.now(), tipo, desc, costo });
-  }
-  closeModal('add-modal');
-  save();
-}
-
-function deleteExpense(id) {
-  if(confirm('Eliminare questa spesa?')) {
-    state.expenses = state.expenses.filter(e => e.id !== id);
     save();
+    closeModal('add-modal');
+    document.getElementById('ex-desc').value = '';
+    document.getElementById('ex-costo').value = '';
   }
 }
 
 function saveBudget() {
   state.budget.viaggio = parseFloat(document.getElementById('b-v').value) || 0;
   state.budget.supporto = parseFloat(document.getElementById('b-s').value) || 0;
-  closeModal('budget-modal');
   save();
+  closeModal('budget-modal');
 }
 
-function openModal(id) { 
-  document.getElementById(id).classList.add('open'); 
-  if(id === 'budget-modal') {
-    document.getElementById('b-v').value = state.budget.viaggio;
-    document.getElementById('b-s').value = state.budget.supporto;
-  }
+function save() {
+  localStorage.setItem('vilniusData', JSON.stringify(state));
+  render();
 }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function closeOnOverlay(e, id) { if(e.target.id === id) closeModal(id); }
 
 function render() {
   const vTot = state.expenses.filter(e => e.tipo === 'Viaggio').reduce((a,b) => a + b.costo, 0);
   const sTot = state.expenses.filter(e => e.tipo === 'Supporto').reduce((a,b) => a + b.costo, 0);
-  const totalSpent = vTot + sTot;
-  
-  // Update Header values
-  document.getElementById('hd-v-val').innerText = `€${vTot.toFixed(2)}`;
-  document.getElementById('hd-v-res').innerText = `Dif. €${(state.budget.viaggio - vTot).toFixed(2)}`;
-  document.getElementById('perc-v').innerText = totalSpent > 0 ? `${((vTot/totalSpent)*100).toFixed(0)}% del totale` : '0% del totale';
+  const total = vTot + sTot;
 
-  document.getElementById('hd-s-val').innerText = `€${sTot.toFixed(2)}`;
-  document.getElementById('hd-s-res').innerText = `Dif. €${(state.budget.supporto - sTot).toFixed(2)}`;
-  document.getElementById('perc-s').innerText = totalSpent > 0 ? `${((sTot/totalSpent)*100).toFixed(0)}% del totale` : '0% del totale';
+  document.getElementById('v-val').innerText = `€${vTot.toFixed(2)}`;
+  document.getElementById('v-diff').innerText = `Rest: €${(state.budget.viaggio - vTot).toFixed(2)}`;
+  document.getElementById('v-perc').innerText = total > 0 ? `${((vTot/total)*100).toFixed(0)}% del totale` : '0%';
 
-  document.getElementById('hd-t-val').innerText = `€${totalSpent.toFixed(2)}`;
-  document.getElementById('hd-t-max').innerText = `su €${(state.budget.viaggio + state.budget.supporto).toFixed(2)}`;
+  document.getElementById('s-val').innerText = `€${sTot.toFixed(2)}`;
+  document.getElementById('s-diff').innerText = `Rest: €${(state.budget.supporto - sTot).toFixed(2)}`;
+  document.getElementById('s-perc').innerText = total > 0 ? `${((sTot/total)*100).toFixed(0)}% del totale` : '0%';
 
   const list = document.getElementById('expense-list');
-  list.innerHTML = state.expenses.length ? '' : '<p style="color:var(--muted); text-align:center;">Nessuna spesa.</p>';
-  
+  if (state.expenses.length === 0) {
+    list.innerHTML = '<div class="empty-state">Ancora nessuna spesa registrata.</div>';
+    return;
+  }
+
+  list.innerHTML = '';
   [...state.expenses].reverse().forEach(e => {
     const catTotal = e.tipo === 'Viaggio' ? vTot : sTot;
-    const percOnCat = catTotal > 0 ? ((e.costo / catTotal) * 100).toFixed(1) : 0;
+    const pOnCat = ((e.costo / catTotal) * 100).toFixed(0);
     
-    const div = document.createElement('div');
-    div.className = 'expense-item';
-    div.innerHTML = `
-      <div class="ex-info">
-        <h4>${e.desc || 'Senza descrizione'}</h4>
-        <p>${e.tipo} • ${new Date(e.id).toLocaleDateString()}</p>
-      </div>
-      <div class="ex-right">
-        <div class="ex-cost-box">
-            <span class="ex-cost">€${e.costo.toFixed(2)}</span>
-            <span class="ex-perc">${percOnCat}% cat.</span>
+    list.innerHTML += `
+      <div class="expense-card">
+        <div>
+          <div class="ex-name">${e.desc}</div>
+          <div class="ex-cat">${e.tipo}</div>
         </div>
-        <button class="btn-action btn-edit" onclick="editExpense(${e.id})">✏️</button>
-        <button class="btn-action btn-del" onclick="deleteExpense(${e.id})">🗑️</button>
+        <div class="ex-amount-box">
+          <span class="ex-amount">€${e.costo.toFixed(2)}</span>
+          <span class="ex-p">${pOnCat}% cat.</span>
+        </div>
       </div>
     `;
-    list.appendChild(div);
   });
 }
 
-function exportExcel() {
-  if (typeof XLSX === 'undefined') return alert("Caricamento libreria...");
-  const vTot = state.expenses.filter(e => e.tipo === 'Viaggio').reduce((a,b) => a + b.costo, 0);
-  const sTot = state.expenses.filter(e => e.tipo === 'Supporto').reduce((a,b) => a + b.costo, 0);
-  const tTot = vTot + sTot;
-
-  const data = [
-    ['REPORT VIAGGIO'],
-    ['Categoria', 'Budget', 'Speso', 'Differenza', '% Incidenza'],
-    ['Viaggio', state.budget.viaggio, vTot, state.budget.viaggio - vTot, tTot > 0 ? (vTot/tTot) : 0],
-    ['Supporto', state.budget.supporto, sTot, state.budget.supporto - sTot, tTot > 0 ? (sTot/tTot) : 0],
-    [''],
-    ['Dettaglio Spese'],
-    ['Data', 'Categoria', 'Descrizione', 'Importo (€)', '% su Categoria']
-  ];
-  
-  state.expenses.forEach(e => {
-    const catTot = e.tipo === 'Viaggio' ? vTot : sTot;
-    data.push([new Date(e.id).toLocaleDateString(), e.tipo, e.desc, e.costo, e.costo/catTot]);
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
-
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Report");
-  XLSX.writeFile(wb, "Rendiconto.xlsx");
 }
 
-window.onload = render;
+render();
 </script>
+
 </body>
 </html>
