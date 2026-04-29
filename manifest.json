@@ -1,7 +1,7 @@
 {
-  "name": "Rendiconto",
-  "short_name": "Rendiconto",
-  "description": "Tracker spese personale",
+  "name": "Vilnius STT",
+  "short_name": "Vilnius STT",
+  "description": "Tracker spese personale per il viaggio a Vilnius",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

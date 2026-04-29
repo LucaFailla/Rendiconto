@@ -397,48 +397,35 @@ function exportExcel() {
   const wb = XLSX.utils.book_new();
   const wsData = [];
 
-  // Row 1: headers
   wsData.push([
     'Tipologia', 'Descrizione', 'Costo',
-    'Tot Viaggio', 'Tot Vitto', 'Viaggio residuo', 'Supporto residuo',
+    'Tot Viaggio', 'Tot Supporto', 'Viaggio residuo', 'Supporto residuo',
     '', '', '', '',
-    'Budget viaggio', 'Budget supporto', 'Budget totale'
+    'Budget viaggio', 'Budget supporto'
   ]);
 
-  // Row 2: first expense + formulas + budget
-  const firstExp = state.expenses[0];
-  wsData.push([
-    firstExp ? firstExp.tipo : '',
-    firstExp ? firstExp.desc : '',
-    firstExp ? firstExp.costo : '',
-    { f: 'SUMIF(A:A,"viaggio",C:C)' },
-    { f: 'SUMIF(A:A,"<>viaggio",C:C)' },
-    { f: `L2 - SUMIF(A:A,"viaggio",C:C)` },
-    { f: `M2 - SUMIF(A:A,"<>viaggio",C:C)` },
-    '', '', '', '',
-    state.budget.viaggio,
-    state.budget.supporto,
-    { f: 'SUM(L2:M2)' }
-  ]);
-
-  // Rows 3+: remaining expenses
-  for (let i = 1; i < state.expenses.length; i++) {
-    const e = state.expenses[i];
-    wsData.push([e.tipo, e.desc, e.costo]);
-  }
+  // Prepariamo i dati: usiamo i valori calcolati invece delle formule Excel 
+  // per maggiore compatibilità tra vari lettori (Google Sheets, Excel, Mobile)
+  const t = calcTotals();
+  
+  state.expenses.forEach((e, index) => {
+    if (index === 0) {
+      wsData.push([
+        e.tipo, e.desc, e.costo,
+        t.viaggio, t.vitto, t.resV, t.resS,
+        '', '', '', '',
+        state.budget.viaggio, state.budget.supporto
+      ]);
+    } else {
+      wsData.push([e.tipo, e.desc, e.costo]);
+    }
+  });
 
   const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-  // Column widths
-  ws['!cols'] = [
-    { wch: 12 }, { wch: 50 }, { wch: 10 },
-    { wch: 14 }, { wch: 12 }, { wch: 16 }, { wch: 18 },
-    { wch: 2 }, { wch: 2 }, { wch: 2 }, { wch: 2 },
-    { wch: 16 }, { wch: 18 }, { wch: 14 }
-  ];
-
-  XLSX.utils.book_append_sheet(wb, ws, 'Budget');
-  XLSX.writeFile(wb, 'Rendiconto.xlsx');
+  ws['!cols'] = [{ wch: 12 }, { wch: 40 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 15 }];
+  
+  XLSX.utils.book_append_sheet(wb, ws, 'Rendiconto');
+  XLSX.writeFile(wb, 'Rendiconto_Vilnius.xlsx');
 }
 
 // Service worker
