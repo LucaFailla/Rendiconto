@@ -31,7 +31,23 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+(function() {
+  const dataToRestore = {
+    budget: { viaggio: 395, supporto: 826 },
+    expenses: [
+      { id: 1714392000000, tipo: 'Viaggio', desc: 'Biglietti aereo', costo: 271.59 },
+      { id: 1714392000001, tipo: 'Alloggio', desc: '10-16 May Domillion New modern Vilnius old town studio U2302', costo: 447.64 },
+      { id: 1714392000002, tipo: 'Viaggio', desc: 'ALIBUS', costo: 8 }
+    ]
+  };
+
+  // Inserimento nella nuova chiave del database locale
+  localStorage.setItem('rendiconto_stt', JSON.stringify(dataToRestore));
   
+  // Ricarica la pagina per applicare i cambiamenti
+  window.location.reload();
+  alert("Dati Excel importati con successo in Vilnius STT!");
+})();  
   body { 
     background: var(--bg-gradient);
     background-attachment: fixed;
