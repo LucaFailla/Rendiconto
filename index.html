@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#1a1a2e">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,448 +11,403 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Vilnius STT</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f0f1a;
-    --bg2: #1a1a2e;
-    --bg3: #16213e;
-    --card: #1e1e35;
-    --border: rgba(255,255,255,0.08);
-    --text: #f0ede8;
-    --muted: rgba(240,237,232,0.45);
+    --bg: #0b0b14;
+    --bg-gradient: linear-gradient(145deg, #0b0b14 0%, #1a1a2e 100%);
+    --card: rgba(255, 255, 255, 0.05);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --glass-bg: rgba(26, 26, 46, 0.85);
+    --text: #ffffff;
+    --muted: rgba(255, 255, 255, 0.5);
     --accent: #e8c547;
     --green: #4ecb8d;
-    --red: #e85454;
+    --red: #ff5e5e;
     --blue: #5b9bd5;
-    --viaggio: #e8c547;
-    --supporto: #4ecb8d;
-    --radius: 16px;
+    --radius: 20px;
+    --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow: hidden; }
-  
-  /* Layout */
-  .app { display: flex; flex-direction: column; height: 100dvh; }
-  .header { background: var(--bg2); padding: 14px 20px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 8px; }
-  .header-title { font-family: 'DM Serif Display', serif; font-size: 20px; letter-spacing: -0.3px; color: var(--text); flex-shrink: 0; }
-  .header-title span { color: var(--accent); }
-  .btn-add-top { background: var(--accent); color: #0f0f1a; border: none; border-radius: 50px; padding: 7px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
-  .btn-add-top svg { width: 14px; height: 14px; }
 
-  /* Budget cards */
-  .budget-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-  .bcard { background: var(--card); border-radius: 12px; padding: 10px 12px; border: 1px solid var(--border); }
-  .bcard-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
-  .bcard-value { font-size: 17px; font-weight: 500; }
-  .bcard-sub { font-size: 10px; margin-top: 2px; }
-  .bcard.viaggio .bcard-value { color: var(--viaggio); }
-  .bcard.supporto .bcard-value { color: var(--supporto); }
-  .bcard.totale .bcard-value { color: var(--text); }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  
+  body { 
+    background: var(--bg-gradient);
+    background-attachment: fixed;
+    color: var(--text); 
+    font-family: 'DM Sans', sans-serif; 
+    overflow: hidden;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Layout & Header */
+  .header { 
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: calc(20px + var(--safe-top)) 20px 15px; 
+    border-bottom: 1px solid var(--card-border);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  
+  .header-title { 
+    font-family: 'DM Serif Display', serif; 
+    font-size: 24px; 
+    letter-spacing: -0.5px;
+  }
+  .header-title span { color: var(--accent); }
+
+  .actions-top { display: flex; gap: 8px; }
+  
+  .btn-icon {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+  
+  .btn-add { background: var(--accent); color: #0b0b14; border: none; font-weight: 700; }
+
+  /* Budget Strip */
+  .budget-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .bcard { 
+    background: var(--card); 
+    border-radius: 16px; 
+    padding: 12px; 
+    border: 1px solid var(--card-border);
+    text-align: center;
+  }
+  .bcard-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .bcard-value { font-size: 15px; font-weight: 700; }
+  .bcard-sub { font-size: 9px; margin-top: 3px; font-weight: 500; }
   .ok { color: var(--green); }
   .over { color: var(--red); }
 
-  /* Content area */
-  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(16px + var(--safe-bottom)); }
+  /* Content Area */
+  .content { 
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 20px 20px calc(30px + var(--safe-bottom));
+    -webkit-overflow-scrolling: touch;
+  }
 
-  /* Summary row */
-  .summary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .scard { background: var(--card); border-radius: var(--radius); padding: 14px 16px; border: 1px solid var(--border); }
-  .scard-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-  .scard-main { font-size: 22px; font-weight: 500; }
-  .scard-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .scard.viaggio .scard-main { color: var(--viaggio); }
-  .scard.supporto .scard-main { color: var(--supporto); }
-
-  /* Progress bar */
-  .progress-wrap { background: var(--card); border-radius: var(--radius); padding: 14px 16px; border: 1px solid var(--border); margin-bottom: 16px; }
+  /* Progress Section */
+  .progress-wrap { 
+    background: var(--card); 
+    border-radius: var(--radius); 
+    padding: 18px; 
+    border: 1px solid var(--card-border); 
+    margin-bottom: 24px; 
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+  .progress-row { margin-bottom: 12px; }
+  .progress-row:last-child { margin-bottom: 0; }
   .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-  .progress-track { height: 6px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
-  .progress-fill { height: 100%; border-radius: 99px; transition: width 0.4s ease; }
-  .progress-fill.viaggio { background: var(--viaggio); }
-  .progress-fill.supporto { background: var(--supporto); }
+  .progress-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
-  /* Section */
-  .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; padding-left: 2px; }
+  .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 15px; font-weight: 600; }
 
-  /* Expense list */
-  .expense-list { display: flex; flex-direction: column; gap: 8px; }
-  .expense-item { background: var(--card); border-radius: 12px; padding: 12px 14px; border: 1px solid var(--border); display: flex; align-items: center; gap: 12px; position: relative; overflow: hidden; }
-  .expense-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
-  .expense-item.viaggio::before { background: var(--viaggio); }
-  .expense-item.alloggio::before { background: var(--blue); }
-  .expense-item.altro::before { background: var(--supporto); }
-  .exp-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-  .exp-icon.viaggio { background: rgba(232,197,71,0.12); }
-  .exp-icon.alloggio { background: rgba(91,155,213,0.12); }
-  .exp-icon.altro { background: rgba(78,203,141,0.12); }
+  /* Expense List */
+  .expense-list { display: flex; flex-direction: column; gap: 12px; }
+  .expense-item { 
+    background: var(--card); 
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: 18px; 
+    padding: 14px; 
+    border: 1px solid var(--card-border); 
+    display: flex; 
+    align-items: center; 
+    gap: 14px; 
+    transition: transform 0.2s;
+  }
+  .expense-item:active { transform: scale(0.97); }
+
+  .exp-icon { 
+    width: 44px; height: 44px; border-radius: 14px; 
+    display: flex; align-items: center; justify-content: center; 
+    font-size: 18px; background: rgba(255,255,255,0.03);
+    flex-shrink: 0;
+  }
+  
   .exp-info { flex: 1; min-width: 0; }
-  .exp-desc { font-size: 14px; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+  .exp-desc { font-size: 15px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .exp-type { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  /* v4 - importi: verde=positivo, rosso=negativo, bianco=zero */
-  .exp-amount { font-size: 15px; font-weight: 500; flex-shrink: 0; color: var(--text); }
-  .exp-amount.positive { color: var(--green) !important; }
-  .exp-amount.negative { color: var(--red) !important; }
-  .exp-amount.zero { color: var(--text) !important; }
-  .btn-del { background: none; border: none; padding: 4px 6px; cursor: pointer; color: var(--muted); font-size: 16px; flex-shrink: 0; border-radius: 6px; }
-  .btn-del:active { background: rgba(232,84,84,0.15); color: var(--red); }
+  .exp-amount { font-size: 16px; font-weight: 700; text-align: right; }
 
-  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
-  .empty-state .emoji { font-size: 36px; margin-bottom: 10px; }
+  .btn-del { 
+    background: rgba(255,94,94,0.1); border: none; width: 30px; height: 30px; 
+    border-radius: 10px; color: var(--red); font-size: 14px; cursor: pointer;
+  }
 
-  /* Modal overlay */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  /* Modals */
+  .modal-overlay { 
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8); 
+    backdrop-filter: blur(8px); z-index: 100; display: flex; align-items: flex-end; 
+    opacity: 0; pointer-events: none; transition: 0.3s; 
+  }
   .modal-overlay.open { opacity: 1; pointer-events: all; }
-  .modal { background: var(--bg3); border-radius: 24px 24px 0 0; padding: 20px 20px calc(20px + var(--safe-bottom)); width: 100%; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); border-top: 1px solid var(--border); }
+  
+  .modal { 
+    background: #161625; width: 100%; border-radius: 30px 30px 0 0; 
+    padding: 25px 25px calc(30px + var(--safe-bottom)); 
+    transform: translateY(100%); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+    border-top: 1px solid var(--card-border);
+  }
   .modal-overlay.open .modal { transform: translateY(0); }
-  .modal-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 99px; margin: 0 auto 20px; }
-  .modal-title { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 20px; }
+  
+  .modal-handle { width: 40px; height: 5px; background: rgba(255,255,255,0.1); border-radius: 99px; margin: 0 auto 25px; }
+  .modal-title { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 20px; }
 
-  /* Form */
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-  .field input, .field select { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px; font-family: 'DM Sans', sans-serif; font-size: 16px; color: var(--text); outline: none; -webkit-appearance: none; }
-  .field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ffffff60' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
-  .field input:focus, .field select:focus { border-color: rgba(232,197,71,0.4); }
-  .field input::placeholder { color: var(--muted); }
-  .btn-submit { width: 100%; background: var(--accent); color: #0f0f1a; border: none; border-radius: 14px; padding: 16px; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 500; cursor: pointer; margin-top: 6px; }
-  .btn-submit:active { opacity: 0.85; }
+  .field { margin-bottom: 18px; }
+  .field label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; }
+  .field input, .field select { 
+    width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); 
+    border-radius: 14px; padding: 14px; font-size: 16px; color: #fff; outline: none; 
+  }
+  .btn-submit { 
+    width: 100%; background: var(--accent); color: #0b0b14; border: none; 
+    border-radius: 16px; padding: 16px; font-size: 16px; font-weight: 700; 
+    margin-top: 10px; box-shadow: 0 4px 15px rgba(232, 197, 71, 0.3);
+  }
 
-  /* Budget modal */
-  .budget-modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-state div { font-size: 40px; margin-bottom: 15px; opacity: 0.5; }
 
-  /* Scrollbar */
-  .content::-webkit-scrollbar { width: 0; }
+  ::-webkit-scrollbar { width: 0; }
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="header">
-    <div class="header-top">
-      <div class="header-title">Rendi<span>conto</span></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn-add-top" onclick="exportExcel()" style="background:var(--card);color:var(--text);border:1px solid var(--border)">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3M2 11v1a2 2 0 002 2h8a2 2 0 002-2v-1"/></svg>
-          Excel
-        </button>
-        <button class="btn-add-top" onclick="openBudgetModal()" style="background:var(--card);color:var(--text);border:1px solid var(--border)">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v6M5.5 7.5h5"/></svg>
-          Budget
-        </button>
-        <button class="btn-add-top" onclick="openAddModal()">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M2 8h12"/></svg>
-          Aggiungi
-        </button>
-      </div>
-    </div>
-    <div class="budget-strip">
-      <div class="bcard viaggio">
-        <div class="bcard-label">Viaggio</div>
-        <div class="bcard-value" id="hd-viaggio">€0</div>
-        <div class="bcard-sub" id="hd-viaggio-res"></div>
-      </div>
-      <div class="bcard supporto">
-        <div class="bcard-label">Supporto</div>
-        <div class="bcard-value" id="hd-supporto">€0</div>
-        <div class="bcard-sub" id="hd-supporto-res"></div>
-      </div>
-      <div class="bcard totale">
-        <div class="bcard-label">Totale</div>
-        <div class="bcard-value" id="hd-totale">€0</div>
-        <div class="bcard-sub" id="hd-budget-tot" style="color:var(--muted)"></div>
-      </div>
+
+<div class="header">
+  <div class="header-top">
+    <div class="header-title">Vilnius <span>STT</span></div>
+    <div class="actions-top">
+      <button class="btn-icon" onclick="exportExcel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        XLS
+      </button>
+      <button class="btn-icon btn-add" onclick="openModal('add-modal')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg>
+        Nuova
+      </button>
     </div>
   </div>
-
-  <div class="content">
-    <div class="summary-row">
-      <div class="scard viaggio">
-        <div class="scard-label">Tot. Viaggio</div>
-        <div class="scard-main" id="tot-viaggio">€0,00</div>
-        <div class="scard-sub" id="res-viaggio">Budget: €0</div>
-      </div>
-      <div class="scard supporto">
-        <div class="scard-label">Tot. Vitto/Altro</div>
-        <div class="scard-main" id="tot-vitto">€0,00</div>
-        <div class="scard-sub" id="res-supporto">Budget: €0</div>
-      </div>
+  
+  <div class="budget-strip">
+    <div class="bcard">
+      <div class="bcard-label">Viaggio</div>
+      <div class="bcard-value" id="hd-v-val">€0</div>
+      <div id="hd-v-res" class="bcard-sub"></div>
     </div>
-
-    <div class="progress-wrap">
-      <div class="progress-label">
-        <span>Viaggio</span>
-        <span id="prog-viaggio-pct">0%</span>
-      </div>
-      <div class="progress-track"><div class="progress-fill viaggio" id="prog-viaggio" style="width:0%"></div></div>
-      <div class="progress-label" style="margin-top:10px">
-        <span>Supporto</span>
-        <span id="prog-supporto-pct">0%</span>
-      </div>
-      <div class="progress-track"><div class="progress-fill supporto" id="prog-supporto" style="width:0%"></div></div>
+    <div class="bcard" onclick="openModal('budget-modal')" style="cursor:pointer">
+      <div class="bcard-label">Supporto</div>
+      <div class="bcard-value" id="hd-s-val">€0</div>
+      <div id="hd-s-res" class="bcard-sub"></div>
     </div>
-
-    <div class="section-title">Spese</div>
-    <div class="expense-list" id="expense-list"></div>
+    <div class="bcard">
+      <div class="bcard-label">Totale</div>
+      <div class="bcard-value" id="hd-t-val">€0</div>
+      <div id="hd-t-max" class="bcard-sub" style="color:var(--muted)"></div>
+    </div>
   </div>
 </div>
 
-<!-- Add expense modal -->
-<div class="modal-overlay" id="add-modal" onclick="closeOnOverlay(event,'add-modal')">
+<div class="content">
+  <div class="progress-wrap">
+    <div class="progress-row">
+      <div class="progress-label"><span>Budget Viaggio</span><span id="p-v-pct">0%</span></div>
+      <div class="progress-track"><div id="p-v-fill" class="progress-fill" style="background:var(--accent)"></div></div>
+    </div>
+    <div class="progress-row" style="margin-top:15px">
+      <div class="progress-label"><span>Budget Supporto</span><span id="p-s-pct">0%</span></div>
+      <div class="progress-track"><div id="p-s-fill" class="progress-fill" style="background:var(--green)"></div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Lista Spese</div>
+  <div id="expense-list" class="expense-list"></div>
+</div>
+
+<div class="modal-overlay" id="add-modal" onclick="closeOnOverlay(event, 'add-modal')">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">Nuova spesa</div>
+    <div class="modal-title">Aggiungi Spesa</div>
     <div class="field">
-      <label>Tipologia</label>
+      <label>Categoria</label>
       <select id="f-tipo">
-        <option value="Viaggio">Viaggio</option>
-        <option value="Alloggio">Alloggio</option>
-        <option value="Vitto">Vitto</option>
-        <option value="Altro">Altro</option>
+        <option value="Viaggio">✈️ Viaggio</option>
+        <option value="Alloggio">🏨 Alloggio</option>
+        <option value="Vitto">🍽️ Vitto</option>
+        <option value="Altro">📌 Altro</option>
       </select>
     </div>
     <div class="field">
       <label>Descrizione</label>
-      <input type="text" id="f-desc" placeholder="es. Biglietti aereo">
+      <input type="text" id="f-desc" placeholder="es. Cena tipica">
     </div>
     <div class="field">
-      <label>Costo (€)</label>
-      <input type="number" id="f-costo" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+      <label>Importo (€)</label>
+      <input type="number" id="f-costo" step="0.01" placeholder="0.00" inputmode="decimal">
     </div>
-    <button class="btn-submit" onclick="addExpense()">Aggiungi spesa</button>
+    <button class="btn-submit" onclick="addExpense()">Salva Spesa</button>
   </div>
 </div>
 
-<!-- Budget modal -->
-<div class="modal-overlay" id="budget-modal" onclick="closeOnOverlay(event,'budget-modal')">
+<div class="modal-overlay" id="budget-modal" onclick="closeOnOverlay(event, 'budget-modal')">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">Imposta budget</div>
-    <div class="budget-modal-grid">
+    <div class="modal-title">Imposta Budget</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
       <div class="field">
-        <label>Budget Viaggio</label>
-        <input type="number" id="b-viaggio" placeholder="395" inputmode="decimal">
+        <label>Viaggio (€)</label>
+        <input type="number" id="b-v" placeholder="395">
       </div>
       <div class="field">
-        <label>Budget Supporto</label>
-        <input type="number" id="b-supporto" placeholder="826" inputmode="decimal">
+        <label>Supporto (€)</label>
+        <input type="number" id="b-s" placeholder="826">
       </div>
     </div>
-    <div class="field">
-      <label>Budget Totale</label>
-      <input type="number" id="b-totale" placeholder="1221" inputmode="decimal" readonly style="opacity:0.6">
-    </div>
-    <button class="btn-submit" onclick="saveBudget()">Salva budget</button>
+    <button class="btn-submit" onclick="saveBudget()">Aggiorna Budget</button>
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const TIPO_ICON = { Viaggio: '✈️', Alloggio: '🏨', Vitto: '🍽️', Altro: '📌' };
-const TIPO_CLASS = { Viaggio: 'viaggio', Alloggio: 'alloggio', Vitto: 'altro', Altro: 'altro' };
+let state = JSON.parse(localStorage.getItem('rendiconto_stt')) || {
+  budget: { viaggio: 395, supporto: 826 },
+  expenses: []
+};
 
-let state = loadState();
-
-function loadState() {
-  try {
-    const s = localStorage.getItem('rendiconto');
-    if (s) return JSON.parse(s);
-  } catch(e) {}
-  return {
-    budget: { viaggio: 395, supporto: 826 },
-    expenses: [
-      { id: 1, tipo: 'Viaggio', desc: 'Biglietti aereo', costo: 271.59 },
-      { id: 2, tipo: 'Alloggio', desc: '10-16 May Domillion New modern Vilnius old town studio U2302', costo: 447.64 },
-      { id: 3, tipo: 'Viaggio', desc: 'ALIBUS', costo: 8 }
-    ]
-  };
-}
-
-function saveState() {
-  localStorage.setItem('rendiconto', JSON.stringify(state));
-}
-
-function fmt(n) { return '€' + n.toFixed(2).replace('.', ','); }
-
-function calcTotals() {
-  const viaggio = state.expenses.filter(e => e.tipo === 'Viaggio').reduce((s,e) => s + e.costo, 0);
-  const vitto = state.expenses.filter(e => e.tipo !== 'Viaggio').reduce((s,e) => s + e.costo, 0);
-  const totale = viaggio + vitto;
-  const bv = state.budget.viaggio;
-  const bs = state.budget.supporto;
-  const bt = bv + bs;
-  return { viaggio, vitto, totale, bv, bs, bt,
-    resV: bv - viaggio, resS: bs - vitto };
-}
+function save() { localStorage.setItem('rendiconto_stt', JSON.stringify(state)); render(); }
+function fmt(n) { return '€' + n.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2}); }
 
 function render() {
-  const t = calcTotals();
+  const vTot = state.expenses.filter(e => e.tipo === 'Viaggio').reduce((a,b) => a + b.costo, 0);
+  const sTot = state.expenses.filter(e => e.tipo !== 'Viaggio').reduce((a,b) => a + b.costo, 0);
+  const vRes = state.budget.viaggio - vTot;
+  const sRes = state.budget.supporto - sTot;
+
+  // Update Headers
+  document.getElementById('hd-v-val').textContent = fmt(vTot);
+  document.getElementById('hd-v-res').innerHTML = `<span class="${vRes < 0 ? 'over' : 'ok'}">${vRes >= 0 ? '+' : ''}${fmt(vRes)}</span>`;
   
-  // Header
-  document.getElementById('hd-viaggio').textContent = fmt(t.viaggio);
-  const rvEl = document.getElementById('hd-viaggio-res');
-  rvEl.textContent = (t.resV >= 0 ? '+' : '') + fmt(t.resV) + ' rimanente';
-  rvEl.className = 'bcard-sub ' + (t.resV >= 0 ? 'ok' : 'over');
+  document.getElementById('hd-s-val').textContent = fmt(sTot);
+  document.getElementById('hd-s-res').innerHTML = `<span class="${sRes < 0 ? 'over' : 'ok'}">${sRes >= 0 ? '+' : ''}${fmt(sRes)}</span>`;
+  
+  document.getElementById('hd-t-val').textContent = fmt(vTot + sTot);
+  document.getElementById('hd-t-max').textContent = 'su ' + fmt(state.budget.viaggio + state.budget.supporto);
 
-  document.getElementById('hd-supporto').textContent = fmt(t.vitto);
-  const rsEl = document.getElementById('hd-supporto-res');
-  rsEl.textContent = (t.resS >= 0 ? '+' : '') + fmt(t.resS) + ' rimanente';
-  rsEl.className = 'bcard-sub ' + (t.resS >= 0 ? 'ok' : 'over');
+  // Update Progress
+  const vPct = Math.min(100, (vTot / state.budget.viaggio * 100) || 0);
+  const sPct = Math.min(100, (sTot / state.budget.supporto * 100) || 0);
+  
+  document.getElementById('p-v-pct').textContent = vPct.toFixed(0) + '%';
+  document.getElementById('p-v-fill').style.width = vPct + '%';
+  document.getElementById('p-v-fill').style.background = vPct >= 100 ? 'var(--red)' : 'var(--accent)';
+  
+  document.getElementById('p-s-pct').textContent = sPct.toFixed(0) + '%';
+  document.getElementById('p-s-fill').style.width = sPct + '%';
+  document.getElementById('p-s-fill').style.background = sPct >= 100 ? 'var(--red)' : 'var(--green)';
 
-  document.getElementById('hd-totale').textContent = fmt(t.totale);
-  document.getElementById('hd-budget-tot').textContent = 'di ' + fmt(t.bt);
-
-  // Summary
-  document.getElementById('tot-viaggio').textContent = fmt(t.viaggio);
-  document.getElementById('tot-vitto').textContent = fmt(t.vitto);
-  document.getElementById('res-viaggio').textContent = 'Budget: ' + fmt(t.bv) + ' | Residuo: ' + fmt(t.resV);
-  document.getElementById('res-supporto').textContent = 'Budget: ' + fmt(t.bs) + ' | Residuo: ' + fmt(t.resS);
-
-  // Progress
-  const pv = Math.min(100, (t.viaggio / t.bv * 100) || 0);
-  const ps = Math.min(100, (t.vitto / t.bs * 100) || 0);
-  document.getElementById('prog-viaggio').style.width = pv + '%';
-  document.getElementById('prog-viaggio').style.background = pv >= 100 ? 'var(--red)' : 'var(--viaggio)';
-  document.getElementById('prog-viaggio-pct').textContent = pv.toFixed(0) + '%';
-  document.getElementById('prog-supporto').style.width = ps + '%';
-  document.getElementById('prog-supporto').style.background = ps >= 100 ? 'var(--red)' : 'var(--supporto)';
-  document.getElementById('prog-supporto-pct').textContent = ps.toFixed(0) + '%';
-
-  // List
+  // Render List
   const list = document.getElementById('expense-list');
   if (state.expenses.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="emoji">💸</div>Nessuna spesa registrata</div>';
+    list.innerHTML = '<div class="empty-state"><div>☁️</div>Nessuna spesa salvata</div>';
     return;
   }
-  list.innerHTML = state.expenses.map(e => {
-    const cls = TIPO_CLASS[e.tipo] || 'altro';
-    const amtClass = e.costo > 0 ? 'positive' : e.costo < 0 ? 'negative' : 'zero';
-    return `<div class="expense-item ${cls}">
-      <div class="exp-icon ${cls}">${TIPO_ICON[e.tipo] || '📌'}</div>
+  list.innerHTML = state.expenses.map(e => `
+    <div class="expense-item">
+      <div class="exp-icon">${TIPO_ICON[e.tipo]}</div>
       <div class="exp-info">
         <div class="exp-desc">${e.desc}</div>
         <div class="exp-type">${e.tipo}</div>
       </div>
-      <div class="exp-amount ${amtClass}">${fmt(e.costo)}</div>
+      <div class="exp-amount">${fmt(e.costo)}</div>
       <button class="btn-del" onclick="deleteExpense(${e.id})">✕</button>
-    </div>`;
-  }).join('');
+    </div>
+  `).join('');
 }
 
 function addExpense() {
   const tipo = document.getElementById('f-tipo').value;
   const desc = document.getElementById('f-desc').value.trim();
   const costo = parseFloat(document.getElementById('f-costo').value);
-  if (!desc || !costo || costo <= 0) return;
+  if (!desc || !costo) return;
   state.expenses.unshift({ id: Date.now(), tipo, desc, costo });
-  saveState();
-  render();
-  closeModal('add-modal');
   document.getElementById('f-desc').value = '';
   document.getElementById('f-costo').value = '';
+  closeModal('add-modal');
+  save();
 }
 
 function deleteExpense(id) {
   state.expenses = state.expenses.filter(e => e.id !== id);
-  saveState();
-  render();
-}
-
-function openAddModal() {
-  document.getElementById('add-modal').classList.add('open');
-  setTimeout(() => document.getElementById('f-desc').focus(), 350);
-}
-
-function openBudgetModal() {
-  document.getElementById('b-viaggio').value = state.budget.viaggio;
-  document.getElementById('b-supporto').value = state.budget.supporto;
-  document.getElementById('b-totale').value = state.budget.viaggio + state.budget.supporto;
-  document.getElementById('budget-modal').classList.add('open');
+  save();
 }
 
 function saveBudget() {
-  const bv = parseFloat(document.getElementById('b-viaggio').value) || 0;
-  const bs = parseFloat(document.getElementById('b-supporto').value) || 0;
-  state.budget = { viaggio: bv, supporto: bs };
-  saveState();
-  render();
+  state.budget.viaggio = parseFloat(document.getElementById('b-v').value) || 0;
+  state.budget.supporto = parseFloat(document.getElementById('b-s').value) || 0;
   closeModal('budget-modal');
+  save();
 }
 
-// Auto-update totale in budget modal
-document.addEventListener('DOMContentLoaded', () => {
-  ['b-viaggio','b-supporto'].forEach(id => {
-    document.getElementById(id).addEventListener('input', () => {
-      const bv = parseFloat(document.getElementById('b-viaggio').value) || 0;
-      const bs = parseFloat(document.getElementById('b-supporto').value) || 0;
-      document.getElementById('b-totale').value = (bv + bs).toFixed(2);
-    });
-  });
-});
-
+function openModal(id) { 
+  document.getElementById(id).classList.add('open'); 
+  if(id === 'budget-modal') {
+    document.getElementById('b-v').value = state.budget.viaggio;
+    document.getElementById('b-s').value = state.budget.supporto;
+  }
+}
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function closeOnOverlay(e, id) { if (e.target.classList.contains('modal-overlay')) closeModal(id); }
+function closeOnOverlay(e, id) { if(e.target.id === id) closeModal(id); }
 
 function exportExcel() {
-  const wb = XLSX.utils.book_new();
-  const wsData = [];
-
-  wsData.push([
-    'Tipologia', 'Descrizione', 'Costo',
-    'Tot Viaggio', 'Tot Supporto', 'Viaggio residuo', 'Supporto residuo',
-    '', '', '', '',
-    'Budget viaggio', 'Budget supporto'
-  ]);
-
-  // Prepariamo i dati: usiamo i valori calcolati invece delle formule Excel 
-  // per maggiore compatibilità tra vari lettori (Google Sheets, Excel, Mobile)
-  const t = calcTotals();
+  const vTot = state.expenses.filter(e => e.tipo === 'Viaggio').reduce((a,b) => a + b.costo, 0);
+  const sTot = state.expenses.filter(e => e.tipo !== 'Viaggio').reduce((a,b) => a + b.costo, 0);
   
-  state.expenses.forEach((e, index) => {
-    if (index === 0) {
-      wsData.push([
-        e.tipo, e.desc, e.costo,
-        t.viaggio, t.vitto, t.resV, t.resS,
-        '', '', '', '',
-        state.budget.viaggio, state.budget.supporto
-      ]);
-    } else {
-      wsData.push([e.tipo, e.desc, e.costo]);
-    }
+  const data = [
+    ['RIEPILOGO BUDGET'],
+    ['Categoria', 'Budget', 'Speso', 'Residuo'],
+    ['Viaggio', state.budget.viaggio, vTot, state.budget.viaggio - vTot],
+    ['Supporto', state.budget.supporto, sTot, state.budget.supporto - sTot],
+    [''],
+    ['DETTAGLIO SPESE'],
+    ['Data ID', 'Categoria', 'Descrizione', 'Importo']
+  ];
+  
+  state.expenses.forEach(e => {
+    data.push([new Date(e.id).toLocaleDateString(), e.tipo, e.desc, e.costo]);
   });
 
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
-  ws['!cols'] = [{ wch: 12 }, { wch: 40 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 15 }];
-  
-  XLSX.utils.book_append_sheet(wb, ws, 'Rendiconto');
-  XLSX.writeFile(wb, 'Rendiconto_Vilnius.xlsx');
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Spese Vilnius");
+  XLSX.writeFile(wb, "Vilnius_STT_Report.xlsx");
 }
 
-// Service worker
+// Service Worker Registration
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').then(reg => {
-    reg.addEventListener('updatefound', () => {
-      const newSW = reg.installing;
-      newSW.addEventListener('statechange', () => {
-        if (newSW.state === 'activated') {
-          window.location.reload();
-        }
-      });
-    });
-  }).catch(() => {});
-
-  // Controlla aggiornamenti ogni volta che l'app torna in primo piano
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      navigator.serviceWorker.getRegistration('./sw.js').then(reg => {
-        if (reg) reg.update();
-      });
-    }
-  });
+  navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 
 render();
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>
