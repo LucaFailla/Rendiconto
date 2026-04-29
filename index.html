@@ -381,25 +381,53 @@ function closeOnOverlay(e, id) { if(e.target.id === id) closeModal(id); }
 function exportExcel() {
   const vTot = state.expenses.filter(e => e.tipo === 'Viaggio').reduce((a,b) => a + b.costo, 0);
   const sTot = state.expenses.filter(e => e.tipo !== 'Viaggio').reduce((a,b) => a + b.costo, 0);
-  
+  const tTot = vTot + sTot;
+  const bTot = state.budget.viaggio + state.budget.supporto;
+
+  // 1. Prepariamo i dati con una struttura più pulita e spaziata
   const data = [
-    ['RIEPILOGO BUDGET'],
-    ['Categoria', 'Budget', 'Speso', 'Residuo'],
+    ['REPORT RENDICONTAZIONE VIAGGIO - VILNIUS STT'],
+    ['Data esportazione:', new Date().toLocaleDateString('it-IT')],
+    [''],
+    ['RIEPILOGO BUDGET', '', '', ''],
+    ['Categoria', 'Budget Previsto', 'Totale Speso', 'Residuo'],
     ['Viaggio', state.budget.viaggio, vTot, state.budget.viaggio - vTot],
     ['Supporto', state.budget.supporto, sTot, state.budget.supporto - sTot],
+    ['TOTALE GENERALE', bTot, tTot, bTot - tTot],
     [''],
-    ['DETTAGLIO SPESE'],
-    ['Data ID', 'Categoria', 'Descrizione', 'Importo']
+    ['DETTAGLIO SPESE ANALITICO', '', '', ''],
+    ['Data', 'Categoria', 'Descrizione', 'Importo (€)']
   ];
   
+  // Aggiungiamo le spese formattando bene la data
   state.expenses.forEach(e => {
-    data.push([new Date(e.id).toLocaleDateString(), e.tipo, e.desc, e.costo]);
+    data.push([
+      new Date(e.id).toLocaleDateString('it-IT'), 
+      e.tipo.toUpperCase(), 
+      e.desc, 
+      e.costo
+    ]);
   });
 
+  // 2. Creazione del foglio
   const ws = XLSX.utils.aoa_to_sheet(data);
+
+  // 3. DEFINIZIONE LARGHEZZA COLONNE (Il vero trucco per l'ordine!)
+  // wch è la larghezza approssimativa in caratteri
+  ws['!cols'] = [
+    { wch: 15 }, // Colonna A (Data)
+    { wch: 20 }, // Colonna B (Categoria / Budget)
+    { wch: 35 }, // Colonna C (Descrizione / Speso)
+    { wch: 15 }  // Colonna D (Importo / Residuo)
+  ];
+
+  // 4. Creazione del Workbook e salvataggio
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Spese Vilnius");
-  XLSX.writeFile(wb, "Vilnius_STT_Report.xlsx");
+  XLSX.utils.book_append_sheet(wb, ws, "Resoconto Spese");
+  
+  // Genera il file con un nome che include la data per non sovrascriverli
+  const fileName = `Vilnius_Report_${new Date().toISOString().slice(0,10)}.xlsx`;
+  XLSX.writeFile(wb, fileName);
 }
 
 // Service Worker Registration
