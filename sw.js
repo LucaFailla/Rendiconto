@@ -1,4 +1,4 @@
-const CACHE = 'rendiconto-v7'; // Incrementato versione
+const CACHE = 'rendiconto-v9'; // Incrementato versione
 const ASSETS = [
   './',
   './index.html',
